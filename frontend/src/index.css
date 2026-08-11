@@ -1,0 +1,24 @@
+:root {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #222222;
+    background: #f4f1eb;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+#root {
+    min-height: 100vh;
+}
