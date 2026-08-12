@@ -6,6 +6,9 @@ const AudioUploader = () => {
     const [file, setFile] = useState(null);
     const [transcription, setTranscription] = useState("");
     const [isDragging, setIsDragging] = useState(false);
+    const [isTranscribing, setIsTranscribing] = useState(false);
+    const [elapsedTime, setElapsedTime] = useState(0);
+    const [progress, setProgress] = useState(0);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -32,20 +35,57 @@ const AudioUploader = () => {
     };
 
     const handleUpload = async () => {
-    const formData = new FormData();
-    formData.append('file', file);
+        if (!file || isTranscribing) return;
 
-    try {
-        const response = await axios.post(
-            'http://localhost:8080/api/transcribe',
-            formData
-        );
+        const formData = new FormData();
+        formData.append("file", file);
 
-        setTranscription(response.data.text);
-    } catch (error) {
-        console.error("Error transcribing audio", error);
-    }
-    };
+        const startTime = performance.now();
+
+        setIsTranscribing(true);
+        setElapsedTime(0);
+        setProgress(10);
+
+        const timer = setInterval(() => {
+            const elapsed = (performance.now() - startTime) / 1000;
+            setElapsedTime(elapsed);
+
+            setProgress((current) => {
+                if (current < 85) {
+                    return current + 1;
+                }
+                return current;
+            });
+        }, 100);
+
+        try {
+            const response = await axios.post(
+                "http://localhost:8080/api/transcribe",
+                formData
+            );
+
+            setTranscription(
+                typeof response.data === "string"
+                    ? response.data
+                    : response.data.text
+            );
+
+            setProgress(100);
+        } catch (error) {
+            console.error("Error transcribing audio", error);
+        } finally {
+            clearInterval(timer);
+
+            const finalTime = (performance.now() - startTime) / 1000;
+            setElapsedTime(finalTime);
+
+            setProgress(100);
+
+            setTimeout(() => {
+                setIsTranscribing(false);
+            }, 300);
+}
+        };
 
     return (
     <main className="app-shell">
@@ -99,10 +139,29 @@ const AudioUploader = () => {
                 <button
                     className="upload-button"
                     onClick={handleUpload}
-                    disabled={!file}
+                    disabled={!file || isTranscribing}
                 >
-                    Transcribe
+                    {isTranscribing ? "Transcribing..." : "Transcribe"}
                 </button>
+
+                {isTranscribing && (
+                    <div className="transcription-status">
+                        <div className="loading-bar">
+                            <div
+                                className="loading-bar-progress"
+                                style={{ width: `${progress}%` }}
+                            ></div>
+                        </div>
+
+                        <p>Transcribing... {elapsedTime.toFixed(1)}s</p>
+                    </div>
+                )}
+
+                {!isTranscribing && elapsedTime > 0 && transcription && (
+                    <p className="response-time">
+                        Responded in {elapsedTime.toFixed(1)} seconds
+                    </p>
+                )}
             </div>
 
             <div className="transcription-result">
