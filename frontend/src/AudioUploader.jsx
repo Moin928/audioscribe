@@ -41,7 +41,7 @@ const AudioUploader = () => {
             formData
         );
 
-        setTranscription(response.data);
+        setTranscription(response.data.text);
     } catch (error) {
         console.error("Error transcribing audio", error);
     }
