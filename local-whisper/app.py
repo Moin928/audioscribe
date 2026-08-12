@@ -25,16 +25,23 @@ def transcribe():
     temp_path = None
 
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".audio") as temp:
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".audio"
+        ) as temp:
             file.save(temp.name)
             temp_path = temp.name
 
         segments, info = model.transcribe(
             temp_path,
-            beam_size=5
+            beam_size=3,
+            language="en"
         )
 
-        text = " ".join(segment.text.strip() for segment in segments)
+        text = " ".join(
+            segment.text.strip()
+            for segment in segments
+        )
 
         return jsonify({
             "text": text,
