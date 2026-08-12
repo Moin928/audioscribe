@@ -1,11 +1,6 @@
 package com.moin.audiosciber.controllers;
 
-import com.moin.audiosciber.services.LocalWhisperService;
-import org.springframework.ai.audio.transcription.AudioTranscriptionPrompt;
-import org.springframework.ai.audio.transcription.AudioTranscriptionResponse;
-import org.springframework.ai.openai.OpenAiAudioTranscriptionModel;
-import org.springframework.ai.openai.OpenAiAudioTranscriptionOptions;
-import org.springframework.core.io.FileSystemResource;
+import com.moin.audiosciber.services.TranscriptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,54 +8,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.openai.models.audio.AudioResponseFormat;
 
-import java.io.File;
 import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/transcribe")
 public class TranscriptionController {
 
-  private final OpenAiAudioTranscriptionModel transcriptionModel;
-  private final LocalWhisperService localWhisperService;
+  private final TranscriptionService transcriptionService;
 
   public TranscriptionController(
 
-    OpenAiAudioTranscriptionModel transcriptionModel,
-    LocalWhisperService localWhisperService) {
+    TranscriptionService transcriptionService) {
 
-    this.transcriptionModel = transcriptionModel;
-    this.localWhisperService = localWhisperService;
+    this.transcriptionService = transcriptionService;
   }
 
-//  @PostMapping
-//  public ResponseEntity<String> transcribeAudio(
-//    @RequestParam("file") MultipartFile file) throws IOException
-//    {
-//        File tempFile = File.createTempFile("audio",".wav");
-//        file.transferTo(tempFile);
-//
-//      OpenAiAudioTranscriptionOptions transcriptionOptions =
-//        OpenAiAudioTranscriptionOptions.builder()
-//          .responseFormat(AudioResponseFormat.TEXT)
-//          .language("en")
-//          .temperature(0f)
-//          .build();
-//
-//      FileSystemResource audioFile = new FileSystemResource(tempFile);
-//      AudioTranscriptionPrompt transcriptionRequest = new AudioTranscriptionPrompt(audioFile,transcriptionOptions);
-//      AudioTranscriptionResponse response = transcriptionModel.call(transcriptionRequest);
-//
-//      tempFile.delete();
-//      return new ResponseEntity<>(response.getResult().getOutput(), HttpStatus.OK);
-//  }
 
   @PostMapping
   public ResponseEntity<String> transcribeAudio(
     @RequestParam("file") MultipartFile file) throws IOException {
 
-    String response = localWhisperService.transcribe(file);
+    String response = transcriptionService.transcribe(file);
 
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
