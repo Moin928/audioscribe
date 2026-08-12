@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @Service
-public class LocalWhisperService {
+public class LocalWhisperService implements TranscriptionProvider{
 
   private final RestClient restClient;
 
@@ -21,6 +21,7 @@ public class LocalWhisperService {
       .build();
   }
 
+  @Override
   public String transcribe(MultipartFile file) throws IOException {
 
     ByteArrayResource resource = new ByteArrayResource(file.getBytes()) {
