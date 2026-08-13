@@ -1,113 +1,147 @@
 # AudioScribe
 
-AudioScribe is a full stack application that turns spoken audio into written text using OpenAI Whisper. The application uses a Spring Boot backend to handle audio processing and transcription, with a React frontend for interacting with the service.
+AudioScribe is a simple audio transcription app that turns uploaded recordings into editable text.
 
-## Overview
+The frontend is built with React and the backend uses Spring Boot. Local transcription is handled by Faster Whisper through a small Flask service and runs on the GPU using CUDA. The project also includes OpenAI transcription support for cloud based transcription.
 
-The application allows users to upload an audio file and receive its transcription through a simple web interface.
+## Features
 
-The backend handles the transcription workflow through Spring AI and communicates with OpenAI's Whisper model. The frontend provides the interface for submitting audio and viewing the resulting transcript.
+Upload audio files through the browser
+
+Drag and drop audio files
+
+Local transcription using Faster Whisper
+
+GPU acceleration with CUDA
+
+OpenAI transcription support
+
+Loading progress while transcription is running
+
+Shows the time taken for each transcription
+
+Responsive interface
 
 ## Tech Stack
-
-### Backend
-
-Spring Boot
-
-Spring AI
-
-OpenAI Whisper
-
-Maven
 
 ### Frontend
 
 React
 
-Vite
+JavaScript
 
-## Features
+CSS
 
-Audio file upload
-
-AI powered speech transcription
-
-Transcript display through the web interface
-
-Backend API for handling transcription requests
-
-Simple frontend for interacting with the transcription service
-
-## Project Structure
-
-```text
-AudioScribe
-│
-├── backend
-│   ├── src
-│   ├── pom.xml
-│   └── ...
-│
-└── frontend
-    ├── src
-    ├── package.json
-    └── ...
-```
-
-## Getting Started
-
-### Prerequisites
-
-Make sure the following are installed on your system.
-
-Java
-
-Maven
-
-Node.js
-
-npm
-
-An OpenAI API key
+Axios
 
 ### Backend
 
-Navigate to the backend directory and configure your OpenAI API key in the application configuration.
+Java
 
-Start the Spring Boot application using Maven.
+Spring Boot
 
-```bash
-mvn spring-boot:run
-```
+Spring AI
 
-### Frontend
+REST API
 
-Navigate to the frontend directory and install the required dependencies.
+### Local Transcription
 
-```bash
-npm install
-```
+Python
 
-Start the Vite development server.
+Flask
 
-```bash
-npm run dev
-```
+Faster Whisper
 
-Once both applications are running, open the frontend in your browser and upload an audio file to generate its transcript.
+CUDA
 
-## Future Improvements
+### Cloud Transcription
 
-Support for additional audio formats
+OpenAI Whisper API
 
-Transcript export as TXT or PDF
+## How It Works
 
-User authentication and account management
+The React frontend sends the selected audio file to the Spring Boot backend.
 
-Improved transcript formatting
+Spring Boot handles the upload and sends the audio to the transcription provider. Local transcription is handled by the Flask service running Faster Whisper with CUDA acceleration.
 
-Speaker identification
+The resulting transcript is returned to the frontend and displayed to the user along with the response time.
 
-## License
+## Project Structure
 
-This project is for educational and development purposes.
+    audioscribe
+    ├── backend
+    │   └── Spring Boot application
+    │
+    ├── frontend
+    │   └── React application
+    │
+    └── local-whisper
+        └── Flask Faster Whisper service
+
+## Running the Project
+
+### 1. Start the local Whisper service
+
+Navigate to the local Whisper directory and activate the Python virtual environment.
+
+Then run:
+
+    python app.py
+
+The service runs on:
+
+    http://127.0.0.1:5000
+
+The local Whisper setup requires a CUDA capable NVIDIA GPU and the required CUDA libraries.
+
+### 2. Start the Spring Boot backend
+
+Navigate to the backend directory and run the Spring Boot application.
+
+The backend runs on:
+
+    http://localhost:8080
+
+If OpenAI transcription is being used, set your API key as an environment variable:
+
+    API_KEY=your_api_key
+
+The API key is not stored in the project.
+
+### 3. Start the frontend
+
+Navigate to the frontend directory and install the dependencies:
+
+    npm install
+
+Then start the development server:
+
+    npm run dev
+
+Open the local address shown by Vite in your browser.
+
+## Performance
+
+Local transcription was tested using Faster Whisper with the base model, CUDA and float16 computation.
+
+After the model is warmed up, short audio samples can be transcribed in roughly half a second on the development machine.
+
+The first request can take longer because the model and GPU libraries need to initialize.
+
+## Why Local Whisper
+
+The local transcription service makes AudioScribe usable without depending entirely on an external API. It also provides very low latency after the model has warmed up.
+
+OpenAI support is included as a cloud transcription option when cloud based processing is preferred.
+
+## Environment Variables
+
+The OpenAI API key should be provided through an environment variable:
+
+    API_KEY=your_api_key
+
+Never commit the actual API key to the repository.
+
+## Status
+
+AudioScribe is currently a completed personal project focused on learning and implementing audio transcription, local AI inference, Spring Boot service architecture and frontend backend communication.
