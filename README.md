@@ -1,30 +1,30 @@
 # AudioScribe
 
-AudioScribe is a simple audio transcription app that turns uploaded recordings into editable text.
+AudioScribe is an audio transcription application that converts uploaded recordings into editable text.
 
-The frontend is built with React and the backend uses Spring Boot. Local transcription is handled by Faster Whisper through a small Flask service and runs on the GPU using CUDA. The project also includes OpenAI transcription support for cloud based transcription.
+The application uses OpenAI for transcription when available and falls back to a local Faster Whisper model running on the user's GPU. The local transcription service is containerized with Docker and uses CUDA for GPU acceleration.
 
 ## Features
 
-Upload audio files through the browser
+Audio file upload
 
-Drag and drop audio files
+Audio transcription with OpenAI Whisper
 
-Local transcription using Faster Whisper
+Local transcription with Faster Whisper
 
-GPU acceleration with CUDA
+Automatic fallback to local transcription
 
-OpenAI transcription support
+GPU accelerated local inference
 
-Loading progress while transcription is running
+Dockerized Whisper service
 
-Shows the time taken for each transcription
+English language transcription
 
-Responsive interface
+Simple transcription interface
 
 ## Tech Stack
 
-### Frontend
+Frontend
 
 React
 
@@ -32,9 +32,7 @@ JavaScript
 
 CSS
 
-Axios
-
-### Backend
+Backend
 
 Java
 
@@ -42,106 +40,93 @@ Spring Boot
 
 Spring AI
 
-REST API
-
-### Local Transcription
-
 Python
 
 Flask
 
 Faster Whisper
 
-CUDA
+Infrastructure
 
-### Cloud Transcription
+Docker
 
-OpenAI Whisper API
+NVIDIA CUDA
 
-## How It Works
-
-The React frontend sends the selected audio file to the Spring Boot backend.
-
-Spring Boot handles the upload and sends the audio to the transcription provider. Local transcription is handled by the Flask service running Faster Whisper with CUDA acceleration.
-
-The resulting transcript is returned to the frontend and displayed to the user along with the response time.
+NVIDIA GPU
 
 ## Project Structure
 
-    audioscribe
-    ├── backend
-    │   └── Spring Boot application
-    │
-    ├── frontend
-    │   └── React application
-    │
-    └── local-whisper
-        └── Flask Faster Whisper service
+    audioscribe/
+    ├── backend/
+    ├── frontend/
+    ├── local whisper/
+    └── docker compose.yml
 
-## Running the Project
+## How It Works
 
-### 1. Start the local Whisper service
+The frontend sends the audio file to the Spring Boot backend.
 
-Navigate to the local Whisper directory and activate the Python virtual environment.
+The backend handles the transcription provider and uses OpenAI when available. Local Whisper is available as a fallback when the cloud service cannot be used.
 
-Then run:
+The local Whisper service runs separately in a Docker container with NVIDIA GPU access.
 
-    python app.py
+## Running Locally
 
-The service runs on:
+### Requirements
 
-    http://127.0.0.1:5000
+Java 17 or newer
 
-The local Whisper setup requires a CUDA capable NVIDIA GPU and the required CUDA libraries.
+Node.js
 
-### 2. Start the Spring Boot backend
+Python is only required if you want to run the local service outside Docker
 
-Navigate to the backend directory and run the Spring Boot application.
+Docker Desktop
 
-The backend runs on:
+An NVIDIA GPU with working Docker GPU support for local transcription
 
-    http://localhost:8080
+### Environment Variables
 
-If OpenAI transcription is being used, set your API key as an environment variable:
+Create an environment variable named `API_KEY` containing your OpenAI API key.
 
-    API_KEY=your_api_key
+The backend reads the key from the environment rather than storing it in the project.
 
-The API key is not stored in the project.
+### Start Local Whisper
 
-### 3. Start the frontend
+From the project root:
 
-Navigate to the frontend directory and install the dependencies:
+    docker compose up --build
+
+The first startup may take longer because the Whisper model needs to be initialized and downloaded.
+
+Later requests are significantly faster once the model is loaded.
+
+### Start the Backend
+
+Open the backend project and run the Spring Boot application.
+
+The backend runs on port 8080 by default.
+
+### Start the Frontend
+
+From the frontend directory:
 
     npm install
-
-Then start the development server:
-
     npm run dev
 
-Open the local address shown by Vite in your browser.
+Open the address shown by Vite in the terminal.
 
-## Performance
+## Local Whisper
 
-Local transcription was tested using Faster Whisper with the base model, CUDA and float16 computation.
+The local transcription service uses the base Faster Whisper model with CUDA and float16 computation.
 
-After the model is warmed up, short audio samples can be transcribed in roughly half a second on the development machine.
+Docker provides the Python environment and CUDA libraries so the local service does not depend on the Python environment installed on the host machine.
 
-The first request can take longer because the model and GPU libraries need to initialize.
+A Docker volume is used to keep the downloaded Whisper model cached between container restarts.
 
-## Why Local Whisper
+## Notes
 
-The local transcription service makes AudioScribe usable without depending entirely on an external API. It also provides very low latency after the model has warmed up.
+The first transcription after restarting the Docker container can take considerably longer because the model and GPU environment need to initialize.
 
-OpenAI support is included as a cloud transcription option when cloud based processing is preferred.
+Once the model is warm, transcription is much faster.
 
-## Environment Variables
-
-The OpenAI API key should be provided through an environment variable:
-
-    API_KEY=your_api_key
-
-Never commit the actual API key to the repository.
-
-## Status
-
-AudioScribe is currently a completed personal project focused on learning and implementing audio transcription, local AI inference, Spring Boot service architecture and frontend backend communication.
+AudioScribe is primarily a learning and portfolio project focused on building a practical transcription pipeline with both cloud and local inference.
