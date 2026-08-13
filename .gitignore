@@ -50,3 +50,7 @@ local-whisper/**/*.pyc
 ### Test files
 
 local-whisper/test.mp3
+
+local-whisper/.venv/
+__pycache__/
+*.pyc

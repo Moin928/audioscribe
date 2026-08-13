@@ -1,0 +1,13 @@
+services:
+  local-whisper:
+    build:
+      context: ./local-whisper
+    container_name: audioscribe-whisper
+    ports:
+      - "5000:5000"
+    gpus: all
+    volumes:
+      - whisper-cache:/root/.cache/huggingface
+
+volumes:
+  whisper-cache:
